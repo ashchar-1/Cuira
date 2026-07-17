@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuira | Red de Emprendimiento Local</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Generador nativo de QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+<body>
+
+    <!-- CABECERA -->
+    <header>
+        <button class="menu-btn" onclick="abrirMenu()">☰</button>
+        <h1 class="logo-title" onclick="limpiarFiltrosYHome()">🌊 Cuira</h1>
+        <div style="width: 24px;"></div>
+    </header>
+
+    <!-- MENÚ LATERAL -->
+    <div id="miMenu" class="sidenav">
+        <div class="sidenav-header">
+            <h2>Explora Cuira</h2>
+            <button class="close-btn" onclick="cerrarMenu()">✖</button>
+        </div>
+        <div class="sidenav-links">
+            <a href="#" onclick="limpiarFiltrosYHome(); cerrarMenu();" class="menu-item-main">🏠 Inicio / Muro</a>
+            <button class="accordion-trigger" onclick="toggleSubmenu('sub-muni')">📍 Municipios <span class="arrow">▾</span></button>
+            <div id="sub-muni" class="submenu">
+                <a href="#" onclick="filtrarDesdeMenu('muni', 'Acevedo')">Acevedo</a>
+                <a href="#" onclick="filtrarDesdeMenu('muni', 'Andrés Bello')">Andrés Bello</a>
+                <a href="#" onclick="filtrarDesdeMenu('muni', 'Brión')">Brión</a>
+                <a href="#" onclick="filtrarDesdeMenu('muni', 'Buroz')">Buroz</a>
+                <a href="#" onclick="filtrarDesdeMenu('muni', 'Páez')">Páez</a>
+                <a href="#" onclick="filtrarDesdeMenu('muni', 'Pedro Gual')">Pedro Gual</a>
+            </div>
+            <button class="accordion-trigger" onclick="toggleSubmenu('sub-cat')">🛍️ Categorías <span class="arrow">▾</span></button>
+            <div id="sub-cat" class="submenu">
+                <a href="#" onclick="filtrarDesdeMenu('cat', 'Gastronomía y Dulcería')">🍰 Gastronomía y Dulcería</a>
+                <a href="#" onclick="filtrarDesdeMenu('cat', 'Cacao y Chocolate')">🍫 Cacao y Chocolate</a>
+                <a href="#" onclick="filtrarDesdeMenu('cat', 'Artesanía y Cultura')">🏺 Artesanía y Cultura</a>
+                <a href="#" onclick="filtrarDesdeMenu('cat', 'Posadas y Turismo')">🌴 Posadas y Turismo</a>
+                <a href="#" onclick="filtrarDesdeMenu('cat', 'Moda y Textil')">🧵 Moda y Textil</a>
+                <a href="#" onclick="filtrarDesdeMenu('cat', 'Servicios Comerciales')">🛠️ Servicios Comerciales</a>
+            </div>
+        </div>
+        <div class="sidenav-footer">
+            <p>¿Eres productor o emprendedor local?</p>
+            <a href="#" class="btn-login" onclick="mostrarVista('admin'); cerrarMenu();">👤 Gestionar mi Negocio</a>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="cerrarMenu()"></div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+        <!-- VISTA 1: MURO SOCIAL (FEED TIPO INSTAGRAM) -->
+        <div id="vista-feed" class="view-section active">
+            <div class="feed-header-area">
+                <h2 id="feed-titulo-dinamico">Muro de Nuestra Tierra</h2>
+                <p id="feed-subtitulo-dinamico" class="feed-subtitulo">Publicaciones recientes de los productores locales</p>
+            </div>
+
+            <div id="banner-personalizado" class="personalized-banner hidden">
+                <p>✨ Muro adaptado a tus intereses</p>
+                <button class="btn-reset-tastes" onclick="reiniciarGustos()">Configurar</button>
+            </div>
+
+            <!-- Aquí se cargan los Posts con fotos y pictograma de compartir -->
+            <div class="social-feed-container" id="feed-container"></div>
+        </div>
+
+        <!-- VISTA 2: PERFIL PÚBLICO EN DETALLE -->
+        <div id="vista-perfil" class="view-section">
+            <button class="btn btn-back" onclick="limpiarFiltrosYHome()">← Regresar al Muro</button>
+            <div class="profile-header">
+                <img id="pub-avatar" class="profile-avatar" src="" alt="Logo">
+                <div class="profile-info">
+                    <h2 id="pub-nombre">Negocio</h2>
+                    <div class="badges-row">
+                        <span class="badge" id="pub-muni">Municipio</span>
+                        <span class="badge badge-cat" id="pub-cat">Categoría</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-body-card">
+                <h3>Sobre Nosotros</h3>
+                <p id="pub-bio"></p>
+                <a href="#" id="pub-wa" target="_blank" class="btn btn-wa">💬 Escribir Directo por WhatsApp</a>
+            </div>
+        </div>
+
+        <!-- VISTA 3: PANEL DEL EMPRENDEDOR -->
+        <div id="vista-admin" class="view-section">
+            <div class="ig-profile-container">
+                <div id="ig-dashboard" class="hidden">
+                    <div class="ig-header">
+                        <div class="ig-avatar-wrapper" onclick="document.getElementById('in-avatar').click()">
+                            <img id="ig-display-avatar" src="https://via.placeholder.com/150" alt="Logo">
+                            <div class="avatar-change-overlay">📷</div>
+                        </div>
+                        <div class="ig-stats-area">
+                            <h2 id="ig-display-nombre" class="ig-username">Mi Negocio</h2>
+                            <div class="ig-stats-row">
+                                <div class="stat-item"><strong id="stat-fotos-count">0</strong> posts</div>
+                                <div class="stat-item"><span id="ig-display-muni">📍 Municipio</span></div>
+                            </div>
+                            <div class="ig-actions">
+                                <button class="btn-ig-secondary" onclick="toggleEditarPerfil()">Editar Perfil</button>
+                                <button class="btn-ig-logout" onclick="cerrarSesion()">➔</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ig-bio-section">
+                        <span class="ig-badge-category" id="ig-display-cat">Categoría</span>
+                        <p id="ig-display-bio" class="ig-bio-text">Biografía...</p>
+                        <a href="#" id="ig-display-wa" target="_blank" class="ig-wa-link">💬 Enlace WhatsApp</a>
+                    </div>
+
+                    <!-- Formulario de Edición -->
+                    <div id="ig-edit-form-panel" class="ig-edit-card hidden-panel">
+                        <h3>Información Comercial</h3>
+                        <form id="form-admin" onsubmit="guardarNegocio(event)">
+                            <input type="file" id="in-avatar" accept="image/*" style="display:none;" onchange="actualizarAvatarPrevia(event)">
+                            <div class="form-group"><label>Nombre Comercial</label><input type="text" id="in-nombre" required></div>
+                            <div class="form-group">
+                                <label>Municipio</label>
+                                <select id="in-muni" required>
+                                    <option value="Acevedo">Acevedo</option>
+                                    <option value="Andrés Bello">Andrés Bello</option>
+                                    <option value="Brión">Brión</option>
+                                    <option value="Buroz">Buroz</option>
+                                    <option value="Páez">Páez</option>
+                                    <option value="Pedro Gual">Pedro Gual</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Categoría</label>
+                                <select id="in-cat" required>
+                                    <option value="Gastronomía y Dulcería">Gastronomía y Dulcería</option>
+                                    <option value="Cacao y Chocolate">Cacao y Chocolate</option>
+                                    <option value="Artesanía y Cultura">Artesanía y Cultura</option>
+                                    <option value="Posadas y Turismo">Posadas y Turismo</option>
+                                    <option value="Moda y Textil">Moda y Textil</option>
+                                    <option value="Servicios Comerciales">Servicios Comerciales</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Descripción</label><textarea id="in-bio" rows="3" required></textarea></div>
+                            <div class="form-group"><label>WhatsApp (Ej: 584121234567)</label><input type="tel" id="in-wa" required></div>
+                            <div class="form-buttons-row">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                                <button type="button" class="btn btn-back" style="margin:0;" onclick="toggleEditarPerfil()">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="ig-tabs"><div class="ig-tab active">⚃ MIS PUBLICACIONES</div></div>
+
+                    <div class="ig-grid-container">
+                        <div class="ig-grid-item add-post-trigger" onclick="document.getElementById('in-foto-catalogo').click()">
+                            <div class="add-icon">+</div><span>Subir Foto</span>
+                            <input type="file" id="in-foto-catalogo" accept="image/*" style="display:none;" onchange="subirFotoCatalogo(event)">
+                        </div>
+                        <div id="ig-photo-grid" style="display: contents;"></div>
+                    </div>
+                </div>
+
+                <div id="ig-register-fallback" class="admin-panel">
+                    <h2 style="text-align:center; color:var(--secondary);">Crea tu Perfil en Cuira</h2>
+                    <button class="btn btn-primary" style="width:100%; padding:18px;" onclick="inicializarNuevoPerfilVacio()">✨ Empezar Perfil Comercial</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ONBOARDING -->
+    <div id="onboarding-overlay" class="onboarding-screen">
+        <div class="onboarding-card">
+            <div class="onboarding-logo">🌊</div>
+            <h2>Bienvenido a Cuira</h2>
+            <p>Elige tus sectores favoritos para personalizar tu muro social:</p>
+            <div class="taste-grid">
+                <div class="taste-pill" onclick="toggleGusto(this, 'Gastronomía y Dulcería')">🍰 Gastronomía</div>
+                <div class="taste-pill" onclick="toggleGusto(this, 'Cacao y Chocolate')">🍫 Cacao</div>
+                <div class="taste-pill" onclick="toggleGusto(this, 'Artesanía y Cultura')">🏺 Artesanía</div>
+                <div class="taste-pill" onclick="toggleGusto(this, 'Posadas y Turismo')">🌴 Turismo</div>
+                <div class="taste-pill" onclick="toggleGusto(this, 'Moda y Textil')">🧵 Moda</div>
+                <div class="taste-pill" onclick="toggleGusto(this, 'Servicios Comerciales')">🛠️ Servicios</div>
+            </div>
+            <div class="onboarding-actions">
+                <button id="btn-onboarding-ok" class="btn btn-primary btn-onboarding hidden" onclick="finalizarOnboarding()">Ver mi Muro</button>
+                <button id="btn-onboarding-skip" class="btn-onboarding-skip" onclick="omitirOnboarding()">Omitir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP GLOBAL PARA VER QR -->
+    <div id="modal-qr" class="qr-modal-overlay" onclick="cerrarModalQR()">
+        <div class="qr-modal-card" onclick="event.stopPropagation()">
+            <button class="qr-close-btn" onclick="cerrarModalQR()">✖</button>
+            <h3 id="qr-modal-title">Código QR Comercial</h3>
+            <div class="qr-canvas-wrapper"><canvas id="qr-generator-canvas"></canvas></div>
+            <button class="btn btn-primary" style="width:100%;" id="btn-modal-compartir-qr">Compartir Imagen de QR</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
