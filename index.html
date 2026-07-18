@@ -17,7 +17,7 @@
         <div style="width: 24px;"></div>
     </header>
 
-    <!-- MENÚ LATERAL -->
+    <!-- MENÚ LATERAL (DRAWER) -->
     <div id="miMenu" class="sidenav">
         <div class="sidenav-header">
             <h2>Explora Cuira</h2>
@@ -25,6 +25,7 @@
         </div>
         <div class="sidenav-links">
             <a href="#" onclick="limpiarFiltrosYHome(); cerrarMenu();" class="menu-item-main">🏠 Inicio / Muro</a>
+            
             <button class="accordion-trigger" onclick="toggleSubmenu('sub-muni')">📍 Municipios <span class="arrow">▾</span></button>
             <div id="sub-muni" class="submenu">
                 <a href="#" onclick="filtrarDesdeMenu('muni', 'Acevedo')">Acevedo</a>
@@ -34,6 +35,7 @@
                 <a href="#" onclick="filtrarDesdeMenu('muni', 'Páez')">Páez</a>
                 <a href="#" onclick="filtrarDesdeMenu('muni', 'Pedro Gual')">Pedro Gual</a>
             </div>
+            
             <button class="accordion-trigger" onclick="toggleSubmenu('sub-cat')">🛍️ Categorías <span class="arrow">▾</span></button>
             <div id="sub-cat" class="submenu">
                 <a href="#" onclick="filtrarDesdeMenu('cat', 'Gastronomía y Dulcería')">🍰 Gastronomía y Dulcería</a>
@@ -53,6 +55,7 @@
 
     <!-- CONTENIDO PRINCIPAL -->
     <main>
+        
         <!-- VISTA 1: MURO SOCIAL (FEED TIPO INSTAGRAM) -->
         <div id="vista-feed" class="view-section active">
             <div class="feed-header-area">
@@ -65,7 +68,7 @@
                 <button class="btn-reset-tastes" onclick="reiniciarGustos()">Configurar</button>
             </div>
 
-            <!-- Aquí se cargan los Posts con fotos y pictograma de compartir -->
+            <!-- Contenedor dinámico de Posts -->
             <div class="social-feed-container" id="feed-container"></div>
         </div>
 
@@ -89,9 +92,11 @@
             </div>
         </div>
 
-        <!-- VISTA 3: PANEL DEL EMPRENDEDOR -->
+        <!-- VISTA 3: PANEL DEL EMPRENDEDOR (CON ACCESO SEGURO FIREBASE) -->
         <div id="vista-admin" class="view-section">
             <div class="ig-profile-container">
+                
+                <!-- DASHBOARD PRIVADO (Visible solo si inició sesión correctamente) -->
                 <div id="ig-dashboard" class="hidden">
                     <div class="ig-header">
                         <div class="ig-avatar-wrapper" onclick="document.getElementById('in-avatar').click()">
@@ -106,7 +111,7 @@
                             </div>
                             <div class="ig-actions">
                                 <button class="btn-ig-secondary" onclick="toggleEditarPerfil()">Editar Perfil</button>
-                                <button class="btn-ig-logout" onclick="cerrarSesion()">➔</button>
+                                <button class="btn-ig-logout" onclick="cerrarSesion()">➔ Salir</button>
                             </div>
                         </div>
                     </div>
@@ -117,7 +122,7 @@
                         <a href="#" id="ig-display-wa" target="_blank" class="ig-wa-link">💬 Enlace WhatsApp</a>
                     </div>
 
-                    <!-- Formulario de Edición -->
+                    <!-- Formulario Desplegable para Editar Perfil Comercial -->
                     <div id="ig-edit-form-panel" class="ig-edit-card hidden-panel">
                         <h3>Información Comercial</h3>
                         <form id="form-admin" onsubmit="guardarNegocio(event)">
@@ -154,8 +159,10 @@
                         </form>
                     </div>
 
+                    <!-- Pestaña de Catálogo de Publicaciones -->
                     <div class="ig-tabs"><div class="ig-tab active">⚃ MIS PUBLICACIONES</div></div>
 
+                    <!-- Cuadrícula Estilo Instagram -->
                     <div class="ig-grid-container">
                         <div class="ig-grid-item add-post-trigger" onclick="document.getElementById('in-foto-catalogo').click()">
                             <div class="add-icon">+</div><span>Subir Foto</span>
@@ -165,15 +172,28 @@
                     </div>
                 </div>
 
+                <!-- ENTRADA PROTEGIDA (Visible si está desconectado) -->
                 <div id="ig-register-fallback" class="admin-panel">
-                    <h2 style="text-align:center; color:var(--secondary);">Crea tu Perfil en Cuira</h2>
-                    <button class="btn btn-primary" style="width:100%; padding:18px;" onclick="inicializarNuevoPerfilVacio()">✨ Empezar Perfil Comercial</button>
+                    <h2 style="text-align:center; color:var(--secondary); margin-bottom: 20px;">Tu Vitrina Comercial</h2>
+                    
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="auth-email" placeholder="ejemplo@correo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña (Mínimo 6 caracteres)</label>
+                        <input type="password" id="auth-password" placeholder="******">
+                    </div>
+                    
+                    <button class="btn btn-primary" style="width:100%; margin-bottom: 10px;" onclick="iniciarSesionFirebase()">🔐 Ingresar a mi Cuenta</button>
+                    <button class="btn btn-back" style="width:100%; background: #edf5ee; color: var(--secondary);" onclick="registrarCuentaFirebase()">✨ Registrar Nuevo Emprendimiento</button>
                 </div>
+
             </div>
         </div>
     </main>
 
-    <!-- ONBOARDING -->
+    <!-- PANTALLA DE ONBOARDING DE GUSTOS -->
     <div id="onboarding-overlay" class="onboarding-screen">
         <div class="onboarding-card">
             <div class="onboarding-logo">🌊</div>
@@ -194,7 +214,7 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP GLOBAL PARA VER QR -->
+    <!-- MODAL POPUP GLOBAL PARA GENERAR Y VER EL QR -->
     <div id="modal-qr" class="qr-modal-overlay" onclick="cerrarModalQR()">
         <div class="qr-modal-card" onclick="event.stopPropagation()">
             <button class="qr-close-btn" onclick="cerrarModalQR()">✖</button>
@@ -204,6 +224,7 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- SCRIPT PRINCIPAL INCLUIDO COMO MÓDULO PARA EL CONTROL DE FIREBASE -->
+    <script type="module" src="app.js"></script>
 </body>
-    </html>
+                                </html>
