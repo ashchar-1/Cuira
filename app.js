@@ -413,4 +413,64 @@ function omitirOnboarding() { gustosUsuario = []; localStorage.setItem('cuira_us
 function cerrarOnboardingModal() { document.getElementById('onboarding-overlay').classList.remove('active-onboarding'); renderizarFeed(); }
 function reiniciarGustos() { gustosUsuario = []; localStorage.removeItem('cuira_user_tastes'); localStorage.removeItem('cuira_onboarding_completed'); document.querySelectorAll('.taste-pill').forEach(p => p.classList.remove('selected')); document.getElementById('onboarding-overlay').classList.add('active-onboarding'); }
 
-function abrirMenu() { document.getElement
+function abrirMenu() { document.getElementById("miMenu").style.width = "280px"; document.getElementById("overlay").style.display = "block"; }
+function cerrarMenu() { document.getElementById("miMenu").style.width = "0"; document.getElementById("overlay").style.display = "none"; document.querySelectorAll('.submenu').forEach(sub => sub.style.maxHeight = "0px"); }
+function toggleSubmenu(id) { const s = document.getElementById(id); s.style.maxHeight = (s.style.maxHeight && s.style.maxHeight !== "0px") ? "0px" : s.scrollHeight + "px"; }
+function filtrarDesdeMenu(tipo, valor) { filtroActivoTipo = tipo; filtroActivoValor = valor; const t = document.getElementById('feed-titulo-dinamico'); const s = document.getElementById('feed-subtitulo-dinamico'); if (tipo === 'muni') { t.innerText = `Producción en ${valor}`; s.innerText = `Por municipio`; } else if (tipo === 'cat') { t.innerText = valor; s.innerText = `Categoría especializada`; } mostrarVista('feed'); cerrarMenu(); }
+function limpiarFiltrosYHome() { filtroActivoTipo = ""; filtroActivoValor = ""; window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('feed-titulo-dinamico').innerText = "Muro de Nuestra Tierra"; document.getElementById('feed-subtitulo-dinamico').innerText = "Publicaciones recientes de los productores locales"; mostrarVista('feed'); }
+
+function abrirPerfilPublico(id) {
+    const negocio = cuiraDB.find(n => n.id === id);
+    if (!negocio) return;
+    document.getElementById('pub-avatar').src = negocio.avatar || 'https://via.placeholder.com/90';
+    document.getElementById('pub-nombre').innerText = negocio.nombre;
+    document.getElementById('pub-muni').innerText = "📍 " + negocio.municipio;
+    document.getElementById('pub-cat').innerText = negocio.categoria || 'General';
+    document.getElementById('pub-bio').innerText = negocio.bio;
+    document.getElementById('pub-wa').href = `https://wa.me/${negocio.whatsapp}`;
+    mostrarVista('perfil');
+}
+
+function mostrarVista(vista) {
+    document.querySelectorAll('.view-section').forEach(sec => { sec.classList.remove('active'); sec.style.display = "none"; });
+    const destino = document.getElementById(`vista-${vista}`);
+    destino.style.display = "block";
+    setTimeout(() => destino.classList.add('active'), 20);
+    if (vista === 'feed') renderizarFeed();
+    else if (vista === 'admin') cargarMiDashboard();
+}
+
+function toggleEditarPerfil() { document.getElementById('ig-edit-form-panel').classList.toggle('hidden-panel'); }
+function renderizarCuadranteInstagram(fotos) { const g = document.getElementById('ig-photo-grid'); g.innerHTML = ''; fotos.forEach((f, i) => { g.innerHTML += `<div class="ig-grid-item"><img src="${f}"><div class="post-overlay"><button class="btn-delete-post" onclick="eliminarFoto(${i})">✕</button></div></div>`; }); }
+function cerrarModalQR() { document.getElementById('modal-qr').classList.remove('active-modal'); }
+async function actualizarAvatarPrevia(e) { const file = e.target.files[0]; if (!file) return; const b64 = await fileToBase64(file); document.getElementById('ig-display-avatar').src = b64; if (usuarioLogueadoUid) { await updateDoc(doc(db, "negocios", usuarioLogueadoUid), { avatar: b64 }); } }
+function fileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = e => rej(e); r.readAsDataURL(file); }); }
+
+
+window.abrirMenu = abrirMenu;
+window.cerrarMenu = cerrarMenu;
+window.toggleSubmenu = toggleSubmenu;
+window.filtrarDesdeMenu = filtrarDesdeMenu;
+window.limpiarFiltrosYHome = limpiarFiltrosYHome;
+window.toggleGusto = toggleGusto;
+window.finalizarOnboarding = finalizarOnboarding;
+window.omitirOnboarding = omitirOnboarding;
+window.reiniciarGustos = reiniciarGustos;
+window.toggleShareDrawer = toggleShareDrawer;
+window.ejecutarAccionCompartir = ejecutarAccionCompartir;
+window.cerrarModalQR = cerrarModalQR;
+window.abrirPerfilPublico = abrirPerfilPublico;
+window.mostrarVista = mostrarVista;
+window.toggleEditarPerfil = toggleEditarPerfil;
+window.actualizarAvatarPrevia = actualizarAvatarPrevia;
+window.guardarNegocio = guardarNegocio;
+window.subirFotoCatalogo = subirFotoCatalogo;
+window.eliminarFoto = eliminarFoto;
+window.iniciarSesionFirebase = iniciarSesionFirebase;
+window.registrarCuentaFirebase = registrarCuentaFirebase;
+window.cerrarSesion = cerrarSesion;
+
+// Ejecución inicial segura
+window.addEventListener('DOMContentLoaded', () => {
+    verificarPrimerIngreso();
+});
