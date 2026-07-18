@@ -41,21 +41,64 @@ let gustosUsuario = JSON.parse(localStorage.getItem('cuira_user_tastes')) || [];
 let filtroActivoTipo = ""; 
 let filtroActivoValor = "";
 
-// === CONTROL DE SESIÓN AUTOMÁTICA (Mantiene al usuario conectado) ===
+// === BANCO DE PUBLICACIONES DE RELLENO / EJEMPLO ===
+const publicacionesDemoRelleno = [
+    {
+        id: 'demo_acevedo_cacao',
+        nombre: 'Cacao Ancestral El Clavo',
+        municipio: 'Acevedo',
+        categoria: 'Cacao y Chocolate',
+        bio: ' 🍫 Bombones finos y barras de chocolate artesanal 100% orgánico cosechado en nuestras tierras de Acevedo. ¡Llevamos el aroma de Barlovento del grano a tu paladar!',
+        whatsapp: '584120000000',
+        avatar: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%23c85a32"/><text x="50%" y="55%" font-size="40" dominant-baseline="middle" text-anchor="middle">🍫</text></svg>',
+        fotos: ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234e342e"/><text x="50%" y="45%" font-size="8" font-weight="bold" fill="%23d7ccc8" text-anchor="middle">CHOCOLATE PREMIUM</text><text x="50%" y="60%" font-size="5" fill="%23b0bec5" text-anchor="middle">Origen: Acevedo, Miranda</text></svg>']
+    },
+    {
+        id: 'demo_brion_dulces',
+        nombre: 'Dulcería Tradicional Sabores de Higuerote',
+        municipio: 'Brión',
+        categoria: 'Gastronomía y Dulcería',
+        bio: ' 🍰 Las mejores conservas de coco, majarete barloventeño, cafungas y dulces abrillantados hechos con las recetas secretas de las abuelas costeñas. ¡Pídelos para tus fiestas!',
+        whatsapp: '584140000000',
+        avatar: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%231e4620"/><text x="50%" y="55%" font-size="40" dominant-baseline="middle" text-anchor="middle">🍰</text></svg>',
+        fotos: ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23fbe9e7"/><text x="50%" y="45%" font-size="8" font-weight="bold" fill="%23d84315" text-anchor="middle">CONSERVAS Y MAJARETE</text><text x="50%" y="60%" font-size="5" fill="%23ff8a65" text-anchor="middle">Encargos activos para la Costa</text></svg>']
+    },
+    {
+        id: 'demo_paez_turismo',
+        nombre: 'Posada Turística Canales del Río',
+        municipio: 'Páez',
+        categoria: 'Posadas y Turismo',
+        bio: ' 🌴 Escápate al paraíso en Río Chico. Habitaciones confortables, piscina, restaurant con la mejor pesca del día y paseos guiados en lancha por nuestros hermosos canales.',
+        whatsapp: '584160000000',
+        avatar: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%230288d1"/><text x="50%" y="55%" font-size="40" dominant-baseline="middle" text-anchor="middle">🌴</text></svg>',
+        fotos: ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e0f7fa"/><text x="50%" y="45%" font-size="8" font-weight="bold" fill="%23006064" text-anchor="middle">TU DESCANSO EN RÍO CHICO</text><text x="50%" y="60%" font-size="5" fill="%2300838f" text-anchor="middle">¡Reserva este fin de semana!</text></svg>']
+    },
+    {
+        id: 'demo_bello_artesania',
+        nombre: 'Taller Cultural San José',
+        municipio: 'Andrés Bello',
+        categoria: 'Artesanía y Cultura',
+        bio: ' 🏺 Tallados artísticos en madera, máscaras tradicionales de los Diablos Danzantes e instrumentos folclóricos fabricados a mano por artesanos locales con maderas nobles.',
+        whatsapp: '584240000000',
+        avatar: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%23ef6c00"/><text x="50%" y="55%" font-size="40" dominant-baseline="middle" text-anchor="middle">🏺</text></svg>',
+        fotos: ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23efebe9"/><text x="50%" y="45%" font-size="8" font-weight="bold" fill="%234e342e" text-anchor="middle">ARTESANÍA IDENTITARIA</text><text x="50%" y="60%" font-size="5" fill="%238d6e63" text-anchor="middle">Piezas únicas de colección</text></svg>']
+    }
+];
+
+// === CONTROL DE SESIÓN AUTOMÁTICA ===
 onAuthStateChanged(auth, (user) => {
     if (user) {
         usuarioLogueadoUid = user.uid;
-        // Si entra al panel de administración, cargamos sus datos específicos
         if(document.getElementById('vista-admin').classList.contains('active')) {
             cargarMiDashboard();
         }
     } else {
         usuarioLogueadoUid = null;
-        cargarMiDashboard(); // Muestra el formulario de login
+        cargarMiDashboard();
     }
 });
 
-// === AUTENTICACIÓN SEGURA POR CORREO Y CONTRASEÑA ===
+// === AUTENTICACIÓN SEGURA ===
 async function registrarCuentaFirebase() {
     const email = document.getElementById('auth-email').value;
     const password = document.getElementById('auth-password').value;
@@ -66,7 +109,6 @@ async function registrarCuentaFirebase() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Creamos un documento base vacío para su negocio en Firestore usando su UID único e infalsificable
         await setDoc(doc(db, "negocios", user.uid), {
             id: user.uid,
             nombre: "Mi Nuevo Emprendimiento",
@@ -95,7 +137,7 @@ async function iniciarSesionFirebase() {
         await signInWithEmailAndPassword(auth, email, password);
         alert("¡Sesión iniciada correctamente!");
     } catch (error) {
-        alert("Acceso denegado: Datos incorrectos o usuario no registrado.");
+        alert("Acceso denegado: Datos incorrectos.");
     }
 }
 
@@ -108,25 +150,33 @@ async function cerrarSesion() {
     }
 }
 
-// === CARGAR DATOS DESDE CLOUD FIRESTORE ===
+// === DESCARGAR DATOS O APLICAR RELLENO ===
 async function descargarBaseDeDatosFirestore() {
     try {
         const querySnapshot = await getDocs(collection(db, "negocios"));
-        cuiraDB = [];
+        let deLaNube = [];
         querySnapshot.forEach((doc) => {
-            cuiraDB.push(doc.data());
+            deLaNube.push(doc.data());
         });
+
+        // SI NO HAY REGISTROS EN FIREBASE, LE METEMOS LOS POSTS DE RELLENO AUTOMÁTICAMENTE
+        if (deLaNube.length === 0) {
+            cuiraDB = [...publicacionesDemoRelleno];
+        } else {
+            // Si hay datos en la nube, combinamos o dejamos solo los de la nube
+            cuiraDB = [...deLaNube];
+        }
     } catch (e) {
-        console.error("Error obteniendo datos de la nube: ", e);
+        console.error("Error conectando a Firebase, usando modo offline de relleno: ", e);
+        cuiraDB = [...publicacionesDemoRelleno];
     }
 }
 
 // === RENDERIZADO DEL MURO SOCIAL ===
 async function renderizarFeed() {
     const container = document.getElementById('feed-container');
-    container.innerHTML = '<p style="text-align:center; color:var(--text-light);">Cargando publicaciones...</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--text-light);">Sincronizando el Muro...</p>';
     
-    // Sincronizamos con los datos más nuevos de Firebase antes de pintar el muro
     await descargarBaseDeDatosFirestore();
 
     container.innerHTML = '';
@@ -151,6 +201,7 @@ async function renderizarFeed() {
         return;
     }
 
+    // Mezclar para que se vea dinámico como Instagram
     publicaciones.sort(() => Math.random() - 0.5);
 
     if (gustosUsuario.length > 0 && !filtroActivoTipo) {
@@ -204,7 +255,6 @@ async function cargarMiDashboard() {
         fallback.classList.add('hidden');
         dashboard.classList.remove('hidden');
 
-        // Buscamos los datos comerciales reales de este usuario desde Firestore
         const docRef = doc(db, "negocios", usuarioLogueadoUid);
         const docSnap = await getDoc(docRef);
 
@@ -249,27 +299,23 @@ async function guardarNegocio(e) {
 
     try {
         await updateDoc(negocioRef, datosActualizados);
-        alert("¡Datos del negocio actualizados en la nube!");
+        alert("¡Datos del negocio actualizados!");
         document.getElementById('ig-edit-form-panel').classList.add('hidden-panel');
         cargarMiDashboard();
     } catch (error) {
-        alert("Error al guardar en la nube: " + error.message);
+        alert("Error al guardar: " + error.message);
     }
 }
 
 async function subirFotoCatalogo(e) {
     if (!usuarioLogueadoUid) return;
-    const file = e.target.files[0]; 
-    if (!file) return;
+    const file = e.target.files[0]; if (!file) return;
 
     const b64 = await fileToBase64(file);
     const negocioRef = doc(db, "negocios", usuarioLogueadoUid);
 
     try {
-        // Añade la foto directamente al array de Firestore
-        await updateDoc(negocioRef, {
-            fotos: arrayUnion(b64)
-        });
+        await updateDoc(negocioRef, { fotos: arrayUnion(b64) });
         cargarMiDashboard();
     } catch (error) {
         console.error("Error al subir foto:", error);
@@ -277,28 +323,24 @@ async function subirFotoCatalogo(e) {
 }
 
 async function eliminarFoto(indexFoto) {
-    if (!confirm("¿Eliminar este post definitivamente de la nube?")) return;
+    if (!confirm("¿Eliminar este post definitivamente?")) return;
     if (!usuarioLogueadoUid) return;
 
     const negocioRef = doc(db, "negocios", usuarioLogueadoUid);
-    
     try {
         const docSnap = await getDoc(negocioRef);
         if (docSnap.exists()) {
             const fotosActuales = docSnap.data().fotos || [];
             const fotoAEliminar = fotosActuales[indexFoto];
-            
-            await updateDoc(negocioRef, {
-                fotos: arrayRemove(fotoAEliminar)
-            });
+            await updateDoc(negocioRef, { fotos: arrayRemove(fotoAEliminar) });
             cargarMiDashboard();
         }
     } catch (error) {
-        alert("No se pudo eliminar de la nube.");
+        alert("No se pudo eliminar.");
     }
 }
 
-// === COMPONENTES DE INTERFAZ Y AUXILIARES COMPARTIDOS ===
+// === INTERFAZ GENERAL Y COMPARTIR ===
 function toggleShareDrawer(postId) {
     const drawer = document.getElementById(`drawer_${postId}`);
     if (drawer.classList.contains('open-drawer')) {
@@ -317,9 +359,7 @@ function ejecutarAccionCompartir(accion, negocioId) {
     const textoMensaje = `¡Mira el post de *${negocio.nombre}* en Cuira! Red local de ${negocio.municipio}.\n\n`;
 
     if (accion === 'copiar') {
-        navigator.clipboard.writeText(`${textoMensaje}${urlCompartir}`).then(() => {
-            alert("¡Copiado con éxito!");
-        });
+        navigator.clipboard.writeText(`${textoMensaje}${urlCompartir}`).then(() => alert("¡Copiado con éxito!"));
     } else if (accion === 'enlace') {
         if (navigator.share) {
             navigator.share({ title: negocio.nombre, text: textoMensaje, url: urlCompartir }).catch(console.error);
@@ -368,66 +408,9 @@ function toggleGusto(elemento, categoria) {
     document.getElementById('btn-onboarding-skip').style.display = gustosUsuario.length > 0 ? "none" : "block";
 }
 function finalizarOnboarding() { localStorage.setItem('cuira_user_tastes', JSON.stringify(gustosUsuario)); localStorage.setItem('cuira_onboarding_completed', 'true'); cerrarOnboardingModal(); }
+// Al omitir rellenamos vacío pero dejamos correr el feed
 function omitirOnboarding() { gustosUsuario = []; localStorage.setItem('cuira_user_tastes', JSON.stringify([])); localStorage.setItem('cuira_onboarding_completed', 'true'); cerrarOnboardingModal(); }
 function cerrarOnboardingModal() { document.getElementById('onboarding-overlay').classList.remove('active-onboarding'); renderizarFeed(); }
 function reiniciarGustos() { gustosUsuario = []; localStorage.removeItem('cuira_user_tastes'); localStorage.removeItem('cuira_onboarding_completed'); document.querySelectorAll('.taste-pill').forEach(p => p.classList.remove('selected')); document.getElementById('onboarding-overlay').classList.add('active-onboarding'); }
 
-function abrirMenu() { document.getElementById("miMenu").style.width = "280px"; document.getElementById("overlay").style.display = "block"; }
-function cerrarMenu() { document.getElementById("miMenu").style.width = "0"; document.getElementById("overlay").style.display = "none"; document.querySelectorAll('.submenu').forEach(sub => sub.style.maxHeight = "0px"); }
-function toggleSubmenu(id) { const s = document.getElementById(id); s.style.maxHeight = (s.style.maxHeight && s.style.maxHeight !== "0px") ? "0px" : s.scrollHeight + "px"; }
-function filtrarDesdeMenu(tipo, valor) { filtroActivoTipo = tipo; filtroActivoValor = valor; const t = document.getElementById('feed-titulo-dinamico'); const s = document.getElementById('feed-subtitulo-dinamico'); if (tipo === 'muni') { t.innerText = `Producción en ${valor}`; s.innerText = `Por municipio`; } else if (tipo === 'cat') { t.innerText = valor; s.innerText = `Categoría especializada`; } mostrarVista('feed'); cerrarMenu(); }
-function limpiarFiltrosYHome() { filtroActivoTipo = ""; filtroActivoValor = ""; window.history.replaceState({}, document.title, window.location.pathname); document.getElementById('feed-titulo-dinamico').innerText = "Muro de Nuestra Tierra"; document.getElementById('feed-subtitulo-dinamico').innerText = "Publicaciones recientes de los productores locales"; mostrarVista('feed'); }
-
-function abrirPerfilPublico(id) {
-    const negocio = cuiraDB.find(n => n.id === id);
-    if (!negocio) return;
-    document.getElementById('pub-avatar').src = negocio.avatar || 'https://via.placeholder.com/90';
-    document.getElementById('pub-nombre').innerText = negocio.nombre;
-    document.getElementById('pub-muni').innerText = "📍 " + negocio.municipio;
-    document.getElementById('pub-cat').innerText = negocio.categoria || 'General';
-    document.getElementById('pub-bio').innerText = negocio.bio;
-    document.getElementById('pub-wa').href = `https://wa.me/${negocio.whatsapp}`;
-    mostrarVista('perfil');
-}
-
-function mostrarVista(vista) {
-    document.querySelectorAll('.view-section').forEach(sec => { sec.classList.remove('active'); sec.style.display = "none"; });
-    const destino = document.getElementById(`vista-${vista}`);
-    destino.style.display = "block";
-    setTimeout(() => destino.classList.add('active'), 20);
-    if (vista === 'feed') renderizarFeed();
-    else if (vista === 'admin') cargarMiDashboard();
-}
-
-function toggleEditarPerfil() { document.getElementById('ig-edit-form-panel').classList.toggle('hidden-panel'); }
-function renderizarCuadranteInstagram(fotos) { const g = document.getElementById('ig-photo-grid'); g.innerHTML = ''; fotos.forEach((f, i) => { g.innerHTML += `<div class="ig-grid-item"><img src="${f}"><div class="post-overlay"><button class="btn-delete-post" onclick="eliminarFoto(${i})">✕</button></div></div>`; }); }
-function cerrarModalQR() { document.getElementById('modal-qr').classList.remove('active-modal'); }
-async function actualizarAvatarPrevia(e) { const file = e.target.files[0]; if (!file) return; const b64 = await fileToBase64(file); document.getElementById('ig-display-avatar').src = b64; if (usuarioLogueadoUid) { await updateDoc(doc(db, "negocios", usuarioLogueadoUid), { avatar: b64 }); } }
-function fileToBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = e => rej(e); r.readAsDataURL(file); }); }
-
-// 3. EXPORTACIÓN GLOBAL PARA COMPATIBILIDAD CON HTML ONCLICK
-window.abrirMenu = abrirMenu;
-window.cerrarMenu = cerrarMenu;
-window.toggleSubmenu = toggleSubmenu;
-window.filtrarDesdeMenu = filtrarDesdeMenu;
-window.limpiarFiltrosYHome = limpiarFiltrosYHome;
-window.toggleGusto = toggleGusto;
-window.finalizarOnboarding = finalizarOnboarding;
-window.omitirOnboarding = omitirOnboarding;
-window.reiniciarGustos = reiniciarGustos;
-window.toggleShareDrawer = toggleShareDrawer;
-window.ejecutarAccionCompartir = ejecutarAccionCompartir;
-window.cerrarModalQR = cerrarModalQR;
-window.abrirPerfilPublico = abrirPerfilPublico;
-window.mostrarVista = mostrarVista;
-window.toggleEditarPerfil = toggleEditarPerfil;
-window.actualizarAvatarPrevia = actualizarAvatarPrevia;
-window.guardarNegocio = guardarNegocio;
-window.subirFotoCatalogo = subirFotoCatalogo;
-window.eliminarFoto = eliminarFoto;
-window.iniciarSesionFirebase = iniciarSesionFirebase;
-window.registrarCuentaFirebase = registrarCuentaFirebase;
-window.cerrarSesion = cerrarSesion;
-
-// Inicialización al cargar la ventana
-window.onload = () => { verificarPrimerIngreso(); };
+function abrirMenu() { document.getElement
